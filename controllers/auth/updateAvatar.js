@@ -8,23 +8,24 @@ const avatarsDir = path.join(__dirname, '../../', 'public', 'avatars');
 const updateAvatar = async (req, res) => {
   try {
     const { _id } = req.user;
-    const { path: tempUpload, originalname } = req.files;
+    const { path: tempUpload, originalname } = req.file;
+    console.log(req.user);
 
-    const extension = originalname.split('.').pop();
-    const filename = `${_id}.${extension}`;
+    const extention = originalname.split('.').pop();
+    const filename = `${_id}.${extention}`;
 
     const resultUpload = path.join(avatarsDir, filename);
 
     await fs.rename(tempUpload, resultUpload);
 
     const avatarImage = await jimp.read(resultUpload);
-    await avatarImage.resize(250, 250).writeAsync(resultUpload);
+    avatarImage.resize(250, 250).write(resultUpload);
 
-    const avatarsURL = path.join('avatars', filename);
+    const avatarURL = path.join('avatars', filename);
 
-    await User.findByIdAndUpdate(_id, { avatarsURL });
+    await User.findByIdAndUpdate(_id, { avatarURL });
     res.json({
-      avatarsURL,
+      avatarURL,
     });
   } catch (error) {
     await fs.unlink(req.file.path);
